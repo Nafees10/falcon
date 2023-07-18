@@ -4,6 +4,8 @@
 #include "PltObject.h"
 #include "pluto.h"
 
+#define BUF_LEN 1024
+
 PltObject init(){
 	Module* module = vm_allocModule();
 	module->members.emplace("render", PObjFromFunction("render", &render));
@@ -29,6 +31,12 @@ PltObject render(PltObject* args, int n){
 	return PltObject();
 }
 
-void render(std::ifstream &in, Dictionary &map){
 
+void render(std::ifstream &in, Dictionary &map){
+	static char buffer[BUF_LEN] = {0};
+	static unsigned int bufSeek;
+	char ch;
+	while (in >> noskipws >> ch){
+
+	}
 }
