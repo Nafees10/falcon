@@ -3,6 +3,7 @@
 
 #include "PltObject.h"
 #include "pluto.h"
+#include "utils.h"
 
 #define BUF_LEN 1024
 
@@ -31,12 +32,19 @@ PltObject render(PltObject* args, int n){
 	return PltObject();
 }
 
-
-void render(std::ifstream &in, Dictionary &map){
-	static char buffer[BUF_LEN] = {0};
-	static unsigned int bufSeek;
+void render(std::istream &in, Dictionary &map){
 	char ch;
 	while (in >> noskipws >> ch){
-
+		if (ch == '<'){
+			auto tagName = readAlphaNumeric(in);
+			if (!isRelevantTag(tagName)){
+				std::cout << tagName;
+				continue;
+			}
+		}
 	}
+}
+
+void renderFor(std::istream &in, Dictionary &map){
+
 }
