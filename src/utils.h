@@ -2,6 +2,7 @@
 #define UTILS_H
 
 #include <string>
+#include <vector>
 #include <iostream>
 #include <cstdint>
 
@@ -20,9 +21,15 @@ bool isAlphabet(char c);
 /// Returns: true if a character is a alphanumeric
 bool isAlphaNum(char c);
 
+/// Reads a file into a vector<char>
+/// Returns: true if done, false if error
+bool readFile(std::string filename, std::vector<char> &stream);
 
+/// Returns: number of consecutive characters for which a function is true
+size_t count(const std::string &stream, size_t index, bool (*func)(char));
 
-/// Reads consecutive alphanumeric characters, skipping any initial whitespace
-std::string readAlphaNumeric(std::istream &stream);
+/// Reads tag name or tag attribute
+/// Returns: tag or attribute name
+std::string tagNameAttr(const std::string &stream, size_t &start);
 
 #endif

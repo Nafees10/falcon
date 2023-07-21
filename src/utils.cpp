@@ -1,4 +1,5 @@
 #include "utils.h"
+#include <fstream>
 
 void lowercase(std::string &str){
 	for (size_t i = 0; i < str.length(); i ++)
@@ -30,14 +31,30 @@ bool isAlphaNum(char c){
 		(c >= '0' && c <= '9');
 }
 
-std::string readAlphaNumeric(std::istream &stream){
+bool readFile(std::string filename, std::vector<char> &stream){
+	stream.clear();
+	std::ifstream in(filename);
+	if (!in)
+		return false;
 	char c;
-	while (stream >> std::noskipws >> c && isWhite(c));
-	if (stream.eof())
+	while (in >> std::noskipws >> c)
+		stream.push_back(c);
+	return true;
+}
+
+size_t count(const std::string &stream, size_t index, bool(*func)(char)){
+	size_t count = 0;
+	while (index + count < stream.size() && func(stream[index + count]))
+		count ++;
+	return count;
+}
+
+std::string tagNameAttr(const std::string &stream, size_t &index){
+	if ((index + 1 >= stream.length()) ||
+			(stream[index] == '<' && stream[index + 1] == '>'))
 		return nullptr;
-	std::string ret;
-	ret += c;
-	while (stream >> std::noskipws >> c && isAlphaNum(c))
-		ret += c;
-	return ret;
+	index += count(stream, index, [](char c) {return !isAlphaNum(c);});
+	const size_t start = index;
+	index += count(stream, index, &isAlphaNum);
+	return stream.substr(start, index - start);
 }

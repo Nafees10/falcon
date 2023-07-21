@@ -32,19 +32,38 @@ PltObject render(PltObject* args, int n){
 	return PltObject();
 }
 
-void render(std::istream &in, Dictionary &map){
+void renderFor(const std::string&, size_t&, Dictionary&);
+void renderIf(const std::string&, size_t&, Dictionary&);
+void renderElse(const std::string&, size_t&, Dictionary&);
+void renderElseIf(const std::string&, size_t&, Dictionary&);
+
+void render(const std::string &stream, size_t &index, Dictionary &map){
 	char ch;
-	while (in >> noskipws >> ch){
-		if (ch == '<'){
-			auto tagName = readAlphaNumeric(in);
+	while (index < stream.length()){
+		char c = stream[index];
+		if (c == '<'){
+			if (++index >= stream.length()){
+				std::cout << c;
+				continue;
+			}
+			bool closing = stream[index] == '/';
+			std::string tagName = tagNameAttr(stream, index);
 			if (!isRelevantTag(tagName)){
 				std::cout << tagName;
 				continue;
+			}
+			if (closing){
+				// skip until closing `>`
+				index += count(stream, index, [](char c) {return c != '>';});
+				return;
+			}
+			if (tagName == "for"){
+				renderFor(stream, index, map);
 			}
 		}
 	}
 }
 
-void renderFor(std::istream &in, Dictionary &map){
+void renderFor(const std::string &stream, size_t &index, Dictionary &map){
 
 }
