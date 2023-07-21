@@ -1,6 +1,6 @@
 /*MIT License
 
-Copyright (c) 2022 Shahryar Ahmad 
+Copyright (c) 2022 Shahryar Ahmad
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -184,7 +184,7 @@ struct Coroutine
 Klass* Error;
 Klass* TypeError;
 Klass* ValueError;
-Klass* MathError; 
+Klass* MathError;
 Klass* NameError;
 Klass* IndexError;
 Klass* ArgumentError;
@@ -192,7 +192,7 @@ Klass* FileIOError;
 Klass* KeyError;
 Klass* OverflowError;
 Klass* FileOpenError;
-Klass* FileSeekError; 
+Klass* FileSeekError;
 Klass* ImportError;
 Klass* ThrowError;
 Klass* MaxRecursionError;
@@ -428,7 +428,7 @@ extern "C"
     Error = p->k1;
     TypeError = p->k2;
     ValueError = p->k3;
-    MathError = p->k4; 
+    MathError = p->k4;
     NameError = p->k5;
     IndexError = p->k6;
     ArgumentError = p->k7;
@@ -436,7 +436,7 @@ extern "C"
     KeyError = p->k9;
     OverflowError = p->k10;
     FileOpenError = p->k11;
-    FileSeekError = p->k12; 
+    FileSeekError = p->k12;
     ImportError = p->k13;
     ThrowError = p->k14;
     MaxRecursionError = p->k15;
