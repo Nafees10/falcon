@@ -5,4 +5,7 @@ if [ $# = 0 ]; then
 elif [ $1 = "debug" ]; then
 	echo "building debug config";
 	g++ -shared -DDEBUG src/*.h src/*.cpp -fPIC -g -o pluto.so -std=c++11;
+elif [ $1 = "test" ]; then
+	echo "building debug test config"
+	g++ -DDEBUG src/*.h src/*.cpp test.cpp -fPIC -g -o pluto.so -std=c++11;
 fi
