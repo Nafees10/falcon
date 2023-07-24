@@ -3,6 +3,7 @@
 
 #include "PltObject.h"
 #include "pluto.h"
+#include "parser.h"
 #include "utils.h"
 
 #define BUF_LEN 1024
@@ -14,102 +15,137 @@ PltObject init(){
 	return PObjFromModule(module);
 };
 
-bool render(std::ifstream&, size_t&, Dictionary&);
-bool renderFor(const std::string&, size_t&, Dictionary&);
-bool renderIf(const std::string&, size_t&, Dictionary&);
-bool renderElse(const std::string&, size_t&, Dictionary&);
-bool renderElseIf(const std::string&, size_t&, Dictionary&);
+PltObject render(const std::vector<Unit>&, Dictionary&);
 
 PltObject render(PltObject* args, int n){
 	// expect 2 args, filename, and dict
 	if (n != 2)
 		return Plt_Err(ArgumentError, "Expected 2 arguments (filename, dict)");
 	string filename = *(string*)args[0].ptr;
-	Dictionary map = *(Dictionary*)args[1].ptr;
+	Dictionary &map = *(Dictionary*)args[1].ptr;
 
-	std::ifstream in(filename);
-	if (!in)
+	std::string stream;
+	if (!readFile(filename, stream))
 		return Plt_Err(FileIOError, "Failed to open file");
-	size_t index;
-	bool ret = render(in, index, map);
-	in.close();
-
-	return PObjFromBool(ret);
+	std::vector<Unit> units = parse(stream);
+	// make sure no invalid in there
+	for (auto unit : units){
+		if (unit.type == Unit::Invalid)
+			return Plt_Err(ValueError, "Syntax error in pluto template");
+	}
+	return render(units, map);
 }
 
 /// result of last if block
 bool lastIfRes = true;
 
-bool render(const std::string &stream, size_t &index, Dictionary &map){
-	char ch;
-	while (index < stream.length()){
-		char c = stream[index];
-		if (c == '<'){
-			if (++index >= stream.length()){
-				std::cout << c;
-				continue;
-			}
-			bool closing = stream[index] == '/';
-			std::string tagName = tagNameAttr(stream, index);
-			lowercase(tagName);
-			if (!isRelevantTag(tagName)){
-				std::cout << tagName;
-				continue;
-			}
-			if (closing){
-				// skip until closing `>`
-				index += count(stream, index, [](char c) {return c != '>';});
-				return true;
-			}
-			bool (*func)(const std::string&, size_t&, Dictionary&) = nullptr;
-			if (tagName == "for"){
-				func = renderFor;
-			}else if (tagName == "if"){
-				func = renderIf;
-			}else if (tagName == "else"){
-				func = renderElse;
-			}else if (tagName == "elseif"){
-				func = renderElseIf;
-			}
-			if (!func(stream, index, map))
-				return false;
-		}
-	}
-	return true;
+PltObject renderStatic(const Unit &unit){
+	for (auto &val : unit.vals)
+		std::cout << val;
+	return PltObject();
 }
 
-bool renderFor(const std::string &stream, size_t &index, Dictionary &map){
-	std::string itName = tagNameAttr(stream, index);
-	std::string ctName = tagNameAttr(stream, index);
-	// skip until `>`
-	index += count(stream, index, [](char c) {return c != '>';});
-	auto iterator = map.find(PObjFromStr(ctName));
-	if (iterator == map.end()){
-		std::cerr << "PLUTO ERROR: map does not include " << ctName << "\n";
-		return false;
+PltObject getVal(Dictionary &map, const std::string &a){
+	PltObject obj;
+	auto iterator = map.find(PObjFromStr(a));
+	if (iterator == map.end())
+		return Plt_Err(ValueError, "map does not contain " + a);
+	obj = iterator->second;
+	return obj;
+}
+
+PltObject getVal(Dictionary &map, const std::string &a, const std::string &b){
+	PltObject obj = getVal(map, a);;
+	if (obj.type == PLT_ERROBJ) return obj;
+
+	if (obj.type == PLT_OBJ){
+		auto &subMap = ((KlassInstance*)(obj.ptr))->members;
+		auto it = subMap.find(b);
+		if (it == subMap.end())
+			return Plt_Err(ValueError, "map does not contain " + a + "." + b);
+		return it->second;
 	}
-	PltObject container = iterator->second;
-	if (container.type != PLT_LIST){
-		std::cerr << "PLUTO ERROR: cannot iterate over non-list " << ctName << "\n";
-		return false;
+	if (obj.type == PLT_DICT){
+		Dictionary &subMap = *(Dictionary*)(obj.ptr);
+		auto iterator = subMap.find(PObjFromStr(b));
+		if (iterator == subMap.end())
+			return Plt_Err(ValueError, "map does not contain " + a + "." + b);
+		return iterator->second;
 	}
-	vector<PltObject> list = *(PltList*)(container.ptr);
-	size_t endIndex;
-	for (auto &obj : list){
-		size_t i = index;
+	return Plt_Err(ValueError, "Expected a map or class instance");
+}
+
+PltObject renderInterpolate(const Unit &unit, Dictionary &map){
+	PltObject obj;
+	if (unit.vals.size() == 2)
+		obj = getVal(map, unit.vals[0], unit.vals[1]);
+	else
+		obj = getVal(map, unit.vals[0]);
+	if (obj.type == PLT_ERROBJ)
+		return obj;
+
+	if (obj.type != PLT_STR)
+		return Plt_Err(ValueError, "cannot interpolate non string data");
+	std::cout << *(std::string*)(obj.ptr);
+	return PltObject();
+}
+
+PltObject renderIf(const Unit &unit, Dictionary &map){
+	PltObject obj;
+	if (unit.vals.size() == 2)
+		obj = getVal(map, unit.vals[0], unit.vals[1]);
+	else
+		obj = getVal(map, unit.vals[0]);
+	if (obj.type == PLT_ERROBJ || (obj.type == PLT_BOOL && obj.i == 0)){
+		lastIfRes = false;
+		return PltObject(); // skip rendering
+	}
+	auto ret = render(unit.subs, map);
+	lastIfRes = true;
+	return ret;
+}
+
+PltObject renderElse(const Unit &unit, Dictionary &map){
+	if (lastIfRes)
+		return PltObject();
+	lastIfRes = true;
+	return render(unit.subs, map);
+}
+
+PltObject renderElseIf(const Unit &unit, Dictionary &map){
+	if (lastIfRes)
+		return PltObject();
+	return renderIf(unit, map);
+}
+
+PltObject renderFor(const Unit &unit, Dictionary &map){
+	PltObject obj = getVal(map, unit.vals[1]);
+	if (obj.type != PLT_LIST)
+		return Plt_Err(ValueError, "can only iterate with for over lists");
+	std::vector<PltObject> list = *(PltList*)(obj.ptr);
+	for (auto &elem : list){
 		Dictionary sub(map);
-		sub.emplace(PObjFromStr(itName), obj);
-		if (!render(stream, i, sub))
-			return false;
-		endIndex = i;
+		sub.emplace(unit.vals[0], elem);
+		render(unit.subs, sub);
 	}
-	index = endIndex;
-	return true;
+	return PltObject();
 }
 
-bool renderIf(const std::string &stream, size_t &index, Dictionary &map){
-	std::string ctName = tagNameAttr(stream, index);
-	// skip until `>`
-	index += count(stream, index, [](char c) {return c != '>';});
-
+PltObject render(const std::vector<Unit> &units, Dictionary &map){
+	for (auto &unit : units){
+		PltObject ret;
+		//ret.type = PLT_BOOL; // dummy
+		switch (unit.type){
+			case Unit::Invalid: break;
+			case Unit::Static: ret = renderStatic(unit); break;
+			case Unit::Interpolate: ret = renderInterpolate(unit, map); break;
+			case Unit::If: ret = renderIf(unit, map); break;
+			case Unit::Else: ret = renderElse(unit, map); break;
+			case Unit::ElseIf: ret = renderElseIf(unit, map); break;
+			case Unit::For: ret = renderFor(unit, map); break;
+		}
+		if (ret.type == PLT_ERROBJ)
+			return ret;
+	}
+	return PltObject();
 }
