@@ -14,7 +14,11 @@ PltObject init(){
 	return PObjFromModule(module);
 };
 
-void render(std::ifstream&, Dictionary&);
+bool render(std::ifstream&, size_t&, Dictionary&);
+bool renderFor(const std::string&, size_t&, Dictionary&);
+bool renderIf(const std::string&, size_t&, Dictionary&);
+bool renderElse(const std::string&, size_t&, Dictionary&);
+bool renderElseIf(const std::string&, size_t&, Dictionary&);
 
 PltObject render(PltObject* args, int n){
 	// expect 2 args, filename, and dict
@@ -26,18 +30,17 @@ PltObject render(PltObject* args, int n){
 	std::ifstream in(filename);
 	if (!in)
 		return Plt_Err(FileIOError, "Failed to open file");
-	render(in, map);
+	size_t index;
+	bool ret = render(in, index, map);
 	in.close();
 
-	return PltObject();
+	return PObjFromBool(ret);
 }
 
-void renderFor(const std::string&, size_t&, Dictionary&);
-void renderIf(const std::string&, size_t&, Dictionary&);
-void renderElse(const std::string&, size_t&, Dictionary&);
-void renderElseIf(const std::string&, size_t&, Dictionary&);
+/// result of last if block
+bool lastIfRes = true;
 
-void render(const std::string &stream, size_t &index, Dictionary &map){
+bool render(const std::string &stream, size_t &index, Dictionary &map){
 	char ch;
 	while (index < stream.length()){
 		char c = stream[index];
@@ -48,6 +51,7 @@ void render(const std::string &stream, size_t &index, Dictionary &map){
 			}
 			bool closing = stream[index] == '/';
 			std::string tagName = tagNameAttr(stream, index);
+			lowercase(tagName);
 			if (!isRelevantTag(tagName)){
 				std::cout << tagName;
 				continue;
@@ -55,15 +59,57 @@ void render(const std::string &stream, size_t &index, Dictionary &map){
 			if (closing){
 				// skip until closing `>`
 				index += count(stream, index, [](char c) {return c != '>';});
-				return;
+				return true;
 			}
+			bool (*func)(const std::string&, size_t&, Dictionary&) = nullptr;
 			if (tagName == "for"){
-				renderFor(stream, index, map);
+				func = renderFor;
+			}else if (tagName == "if"){
+				func = renderIf;
+			}else if (tagName == "else"){
+				func = renderElse;
+			}else if (tagName == "elseif"){
+				func = renderElseIf;
 			}
+			if (!func(stream, index, map))
+				return false;
 		}
 	}
+	return true;
 }
 
-void renderFor(const std::string &stream, size_t &index, Dictionary &map){
+bool renderFor(const std::string &stream, size_t &index, Dictionary &map){
+	std::string itName = tagNameAttr(stream, index);
+	std::string ctName = tagNameAttr(stream, index);
+	// skip until `>`
+	index += count(stream, index, [](char c) {return c != '>';});
+	auto iterator = map.find(PObjFromStr(ctName));
+	if (iterator == map.end()){
+		std::cerr << "PLUTO ERROR: map does not include " << ctName << "\n";
+		return false;
+	}
+	PltObject container = iterator->second;
+	if (container.type != PLT_LIST){
+		std::cerr << "PLUTO ERROR: cannot iterate over non-list " << ctName << "\n";
+		return false;
+	}
+	vector<PltObject> list = *(PltList*)(container.ptr);
+	size_t endIndex;
+	for (auto &obj : list){
+		size_t i = index;
+		Dictionary sub(map);
+		sub.emplace(PObjFromStr(itName), obj);
+		if (!render(stream, i, sub))
+			return false;
+		endIndex = i;
+	}
+	index = endIndex;
+	return true;
+}
+
+bool renderIf(const std::string &stream, size_t &index, Dictionary &map){
+	std::string ctName = tagNameAttr(stream, index);
+	// skip until `>`
+	index += count(stream, index, [](char c) {return c != '>';});
 
 }
