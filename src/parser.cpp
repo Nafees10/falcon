@@ -146,5 +146,24 @@ Unit parseElseIfTag(const std::string &str, size_t &i){
 }
 
 Unit parseInterpolation(const std::string &str, size_t &i){
-
+	// start at {
+	if (str[i] != '{') return Unit();
+	++ i;
+	size_t len = count(str, i, [](char c) { return isAlphaNum(c); });
+	if (len == 0 || i + len >= str.length()) return Unit();
+	std::string a = str.substr(i, len);
+	i += len;
+	if (str[i] == '}'){
+		++ i;
+		return Unit(Unit::Interpolate, {a});
+	}
+	if (str[i] != '.') return Unit();
+	++ i;
+	len = count(str, i, [](char c) { return isAlphaNum(c); });
+	if (len == 0 || i + len >= str.length()) return Unit();
+	std::string b = str.substr(i, len);
+	i += len;
+	if (str[i] != '}') return Unit();
+	++ i;
+	return Unit(Unit::Interpolate, {a, b});
 }
