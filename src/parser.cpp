@@ -120,7 +120,7 @@ Unit parseIfTag(const std::string &str, size_t &i){
 		if (i >= str.length())
 			return Unit();
 	}
-	i += count(str, i, [](char c) { return c != '>'; });
+	i += count(str, i, [](char c) { return c != '>'; }) + 1;
 	if (b.length() > 0)
 		return Unit(Unit::If, a, b, parse(str, i));
 	return Unit(Unit::If, a, parse(str, i));
@@ -149,7 +149,7 @@ Unit parseInterpolation(const std::string &str, size_t &i){
 	i += len;
 	if (str[i] == '}'){
 		++ i;
-		return Unit(Unit::Interpolate, {a});
+		return Unit(Unit::Interpolate, a);
 	}
 	if (str[i] != '.') return Unit();
 	++ i;
@@ -159,5 +159,5 @@ Unit parseInterpolation(const std::string &str, size_t &i){
 	i += len;
 	if (str[i] != '}') return Unit();
 	++ i;
-	return Unit(Unit::Interpolate, {a, b});
+	return Unit(Unit::Interpolate, a, b);
 }

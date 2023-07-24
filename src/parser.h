@@ -35,6 +35,15 @@ struct Unit{
 		vals.push_back(b);
 		this->subs = s;
 	}
+
+	Unit(Type t, std::string a) : type(t) {
+		vals.push_back(a);
+	}
+	Unit(Type t, std::string a, std::string b) :
+		type(t) {
+		vals.push_back(a);
+		vals.push_back(b);
+	}
 };
 
 std::vector<Unit> parse(const std::string &stream);

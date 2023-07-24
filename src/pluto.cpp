@@ -132,7 +132,7 @@ PltObject renderFor(const Unit &unit, Dictionary &map){
 	return nil;
 }
 
-PltObject render(const std::vector<Unit> &units, Dictionary &map){
+PltObject renderUnits(const std::vector<Unit> &units, Dictionary &map){
 	for (auto &unit : units){
 		PltObject ret;
 		//ret.type = PLT_BOOL; // dummy
