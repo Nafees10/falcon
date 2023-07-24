@@ -21,9 +21,9 @@ bool isAlphabet(char c);
 /// Returns: true if a character is a alphanumeric
 bool isAlphaNum(char c);
 
-/// Reads a file into a vector<char>
+/// Reads a file into a string
 /// Returns: true if done, false if error
-bool readFile(std::string filename, std::vector<char> &stream);
+bool readFile(std::string filename, std::string &stream);
 
 /// Returns: number of consecutive characters for which a function is true
 size_t count(const std::string &stream, size_t index, bool (*func)(char));

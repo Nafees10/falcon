@@ -31,14 +31,15 @@ bool isAlphaNum(char c){
 		(c >= '0' && c <= '9');
 }
 
-bool readFile(std::string filename, std::vector<char> &stream){
+bool readFile(std::string filename, std::string &stream){
 	stream.clear();
 	std::ifstream in(filename);
 	if (!in)
 		return false;
 	char c;
 	while (in >> std::noskipws >> c)
-		stream.push_back(c);
+		stream += c;
+	in.close();
 	return true;
 }
 
