@@ -6,9 +6,10 @@
 #include "parser.h"
 #include "utils.h"
 
-#define BUF_LEN 1024
+PltObject nil;
 
 PltObject init(){
+	nil.type = PLT_NIL;
 	Module* module = vm_allocModule();
 	module->members.emplace("render", PObjFromFunction("render", &render));
 
@@ -42,7 +43,7 @@ bool lastIfRes = true;
 PltObject renderStatic(const Unit &unit){
 	for (auto &val : unit.vals)
 		std::cout << val;
-	return PltObject();
+	return nil;
 }
 
 PltObject getVal(Dictionary &map, const std::string &a){
@@ -87,7 +88,7 @@ PltObject renderInterpolate(const Unit &unit, Dictionary &map){
 	if (obj.type != PLT_STR)
 		return Plt_Err(ValueError, "cannot interpolate non string data");
 	std::cout << *(std::string*)(obj.ptr);
-	return PltObject();
+	return nil;
 }
 
 PltObject renderIf(const Unit &unit, Dictionary &map){
@@ -98,7 +99,7 @@ PltObject renderIf(const Unit &unit, Dictionary &map){
 		obj = getVal(map, unit.vals[0]);
 	if (obj.type == PLT_ERROBJ || (obj.type == PLT_BOOL && obj.i == 0)){
 		lastIfRes = false;
-		return PltObject(); // skip rendering
+		return nil; // skip rendering
 	}
 	auto ret = render(unit.subs, map);
 	lastIfRes = true;
@@ -107,14 +108,14 @@ PltObject renderIf(const Unit &unit, Dictionary &map){
 
 PltObject renderElse(const Unit &unit, Dictionary &map){
 	if (lastIfRes)
-		return PltObject();
+		return nil;
 	lastIfRes = true;
 	return render(unit.subs, map);
 }
 
 PltObject renderElseIf(const Unit &unit, Dictionary &map){
 	if (lastIfRes)
-		return PltObject();
+		return nil;
 	return renderIf(unit, map);
 }
 
@@ -125,10 +126,10 @@ PltObject renderFor(const Unit &unit, Dictionary &map){
 	std::vector<PltObject> list = *(PltList*)(obj.ptr);
 	for (auto &elem : list){
 		Dictionary sub(map);
-		sub.emplace(unit.vals[0], elem);
+		sub.emplace(PObjFromStr(unit.vals[0]), elem);
 		render(unit.subs, sub);
 	}
-	return PltObject();
+	return nil;
 }
 
 PltObject render(const std::vector<Unit> &units, Dictionary &map){
@@ -147,5 +148,5 @@ PltObject render(const std::vector<Unit> &units, Dictionary &map){
 		if (ret.type == PLT_ERROBJ)
 			return ret;
 	}
-	return PltObject();
+	return nil;
 }
