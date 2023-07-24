@@ -16,7 +16,7 @@ PltObject init(){
 	return PObjFromModule(module);
 };
 
-PltObject render(const std::vector<Unit>&, Dictionary&);
+PltObject renderUnits(const std::vector<Unit>&, Dictionary&);
 
 PltObject render(PltObject* args, int n){
 	// expect 2 args, filename, and dict
@@ -34,7 +34,7 @@ PltObject render(PltObject* args, int n){
 		if (unit.type == Unit::Invalid)
 			return Plt_Err(ValueError, "Syntax error in pluto template");
 	}
-	return render(units, map);
+	return renderUnits(units, map);
 }
 
 /// result of last if block
@@ -101,7 +101,7 @@ PltObject renderIf(const Unit &unit, Dictionary &map){
 		lastIfRes = false;
 		return nil; // skip rendering
 	}
-	auto ret = render(unit.subs, map);
+	auto ret = renderUnits(unit.subs, map);
 	lastIfRes = true;
 	return ret;
 }
@@ -110,7 +110,7 @@ PltObject renderElse(const Unit &unit, Dictionary &map){
 	if (lastIfRes)
 		return nil;
 	lastIfRes = true;
-	return render(unit.subs, map);
+	return renderUnits(unit.subs, map);
 }
 
 PltObject renderElseIf(const Unit &unit, Dictionary &map){
@@ -127,7 +127,7 @@ PltObject renderFor(const Unit &unit, Dictionary &map){
 	for (auto &elem : list){
 		Dictionary sub(map);
 		sub.emplace(PObjFromStr(unit.vals[0]), elem);
-		render(unit.subs, sub);
+		renderUnits(unit.subs, sub);
 	}
 	return nil;
 }
