@@ -104,7 +104,7 @@ Unit parseForTag(const std::string &str, size_t &i){
 	if (i >= str.length())
 		return Unit();
 	std::string cont = tagNameAttr(str, i);
-	i += count(str, i, [](char c) { return c != '>'; });
+	i += count(str, i, [](char c) { return c != '>'; }) + 1;
 
 	return Unit(Unit::For, it, cont, parse(str, i));
 }
@@ -128,7 +128,7 @@ Unit parseIfTag(const std::string &str, size_t &i){
 
 Unit parseElseTag(const std::string &str, size_t &i){
 	// skip until >
-	i += count(str, i, [](char c) { return c != '>'; });
+	i += count(str, i, [](char c) { return c != '>'; }) + 1;
 	return Unit(Unit::Else, parse(str, i));
 }
 
