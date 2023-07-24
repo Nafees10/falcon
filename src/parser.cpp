@@ -98,21 +98,15 @@ Unit parseTag(const std::string &str, std::string tagName, size_t &i){
 }
 
 Unit parseForTag(const std::string &str, size_t &i){
-	std::vector<std::string> args;
-	std::string s = tagNameAttr(str, i);
+	std::string it = tagNameAttr(str, i);
 	if (i >= str.length())
 		return Unit();
-	args.push_back(s);
-	if (str[i] == '.'){
-		s = tagNameAttr(str, i);
-		args.push_back(s);
-	}
 	if (i >= str.length())
 		return Unit();
-	args.push_back(tagNameAttr(str, i));
+	std::string cont = tagNameAttr(str, i);
 	i += count(str, i, [](char c) { return c != '>'; });
 
-	return Unit(Unit::For, args, parse(str, i));
+	return Unit(Unit::For, it, cont, parse(str, i));
 }
 
 Unit parseIfTag(const std::string &str, size_t &i){
