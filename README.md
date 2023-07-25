@@ -41,8 +41,8 @@ if it is `true`.
 This also works for dictionaries and objects, i.e: if `x` is a dictionary, and
 you need to check a key `"foo"`, then `<if x.foo>` will do that.
 
-This also works for objects, i.e: if `x` is a class instant, and you need to
-checks a public member `"foo"`, then `<if x.foo>` will do that.
+if `x` is a class instance, and you need to checks a public member `"foo"`, then
+`<if x.foo>` will do that.
 
 The `</if>` tag can be followed by an `<else>`, or an `<elseif ..>` tag too.
 It does not need to follow immediately, i.e: There can be other tags or static
