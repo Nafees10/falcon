@@ -127,7 +127,9 @@ PltObject renderFor(const Unit &unit, Dictionary &map){
 	for (auto &elem : list){
 		Dictionary sub(map);
 		sub.emplace(PObjFromStr(unit.vals[0]), elem);
-		renderUnits(unit.subs, sub);
+		auto ret =renderUnits(unit.subs, sub);
+		if (ret.type == PLT_ERROBJ)
+			return ret;
 	}
 	return nil;
 }

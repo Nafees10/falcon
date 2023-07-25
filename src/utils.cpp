@@ -53,7 +53,7 @@ size_t count(const std::string &stream, size_t index, bool(*func)(char)){
 std::string tagNameAttr(const std::string &stream, size_t &index){
 	if ((index + 1 >= stream.length()) ||
 			(stream[index] == '<' && stream[index + 1] == '>'))
-		return nullptr;
+		return "";
 	index += count(stream, index, [](char c) {return !isAlphaNum(c);});
 	const size_t start = index;
 	index += count(stream, index, &isAlphaNum);

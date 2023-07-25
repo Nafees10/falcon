@@ -110,8 +110,8 @@ Unit parseForTag(const std::string &str, size_t &i){
 }
 
 Unit parseIfTag(const std::string &str, size_t &i){
-	std::string a = nullptr;
-	std::string b = nullptr;
+	std::string a = "";
+	std::string b = "";
 	a = tagNameAttr(str, i);
 	if (i >= str.length())
 		return Unit();
