@@ -8,11 +8,13 @@ Module version of the standalone
 
 ## Building & Installing Pluto
 
+Plutonium Language must be installed prior to installing pluto.
+
 ```bash
 git clone https://github.com/Nafees10/plutoc.git
 cd plutoc
-./build.sh release
-sudo mv plutoc.so /opt/plutonium/modules
+./build.sh
+sudo mv pluto.so /opt/plutonium/modules
 ```
 
 ## Syntax
