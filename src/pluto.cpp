@@ -23,9 +23,9 @@ PltObject render(PltObject* args, int n){
 	if (n != 2)
 		return Plt_Err(ArgumentError, "Expected 2 arguments (filename, dict)");
 	if (args[0].type != PLT_STR)
-		return Plt_Err(ArgumentError, "expected first argumnt as string filename");
+		return Plt_Err(TypeError, "expected first argumnt as string filename");
 	if (args[1].type != PLT_DICT)
-		return Plt_Err(ArgumentError, "expected second argumnt as dictionary");
+		return Plt_Err(TypeError, "expected second argumnt as dictionary");
 	string filename = *(string*)args[0].ptr;
 	Dictionary &map = *(Dictionary*)args[1].ptr;
 
