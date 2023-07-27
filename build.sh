@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ ! -f /tmp/foo.txt ]; then
+if [ ! -f src/PltObject.h ]; then
 	ln -s /opt/plutonium/PltObject.h src/PltObject.h
 fi
 if [ $# = 0 ]; then
