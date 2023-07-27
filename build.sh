@@ -1,4 +1,7 @@
 #!/bin/bash
+if [ ! -f /tmp/foo.txt ]; then
+	ln -s /opt/plutonium/PltObject.h src/PltObject.h
+fi
 if [ $# = 0 ]; then
 	echo "building release config";
 	g++ -shared src/*.h src/*.cpp -s -O3 -fPIC -o pluto.so -std=c++11;
