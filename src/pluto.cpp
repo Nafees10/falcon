@@ -29,10 +29,13 @@ PltObject render(PltObject* args, int n){
 	string filename = *(string*)args[0].ptr;
 	Dictionary &map = *(Dictionary*)args[1].ptr;
 
-	std::string stream;
-	if (!readFile(filename, stream))
-		return Plt_Err(FileIOError, "Failed to open file");
-	std::vector<Unit> units = parse(stream);
+	std::vector<Unit> units;
+	{
+		std::string stream;
+		if (!readFile(filename, stream))
+			return Plt_Err(FileIOError, "Failed to open file");
+		units = parse(stream);
+	}
 	// make sure no invalid in there
 	for (auto unit : units){
 		if (unit.type == Unit::Invalid)
