@@ -31,7 +31,7 @@ bool isAlphaNum(char c){
 		(c >= '0' && c <= '9');
 }
 
-bool readFile(std::string filename, std::string &stream){
+bool readFile(const std::string &filename, std::string &stream){
 	stream.clear();
 	std::ifstream in(filename);
 	if (!in)
