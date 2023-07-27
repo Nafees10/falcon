@@ -16,7 +16,7 @@ PltObject init(){
 	return PObjFromModule(module);
 };
 
-PltObject renderUnits(const std::vector<Unit>&, Dictionary&);
+PltObject renderUnits(std::vector<Unit>&, Dictionary&);
 
 PltObject render(PltObject* args, int n){
 	// expect 2 args, filename, and dict
@@ -44,22 +44,22 @@ PltObject render(PltObject* args, int n){
 /// result of last if block
 bool lastIfRes = true;
 
-PltObject renderStatic(const Unit &unit){
+PltObject renderStatic(Unit &unit){
 	for (auto &val : unit.vals)
 		std::cout << val;
 	return nil;
 }
 
-PltObject getVal(Dictionary &map, const std::string &a){
+PltObject getVal(Dictionary &map, std::string &a){
 	PltObject obj;
-	auto iterator = map.find(PObjFromStr(a));
+	auto iterator = map.find(PObjFromStrPtr(&a));
 	if (iterator == map.end())
 		return Plt_Err(ValueError, "map does not contain " + a);
 	obj = iterator->second;
 	return obj;
 }
 
-PltObject getVal(Dictionary &map, const std::string &a, const std::string &b){
+PltObject getVal(Dictionary &map, std::string &a, std::string &b){
 	PltObject obj = getVal(map, a);;
 	if (obj.type == PLT_ERROBJ) return obj;
 
@@ -72,7 +72,7 @@ PltObject getVal(Dictionary &map, const std::string &a, const std::string &b){
 	}
 	if (obj.type == PLT_DICT){
 		Dictionary &subMap = *(Dictionary*)(obj.ptr);
-		auto iterator = subMap.find(PObjFromStr(b));
+		auto iterator = subMap.find(PObjFromStrPtr(&b));
 		if (iterator == subMap.end())
 			return Plt_Err(ValueError, "map does not contain " + a + "." + b);
 		return iterator->second;
@@ -80,7 +80,7 @@ PltObject getVal(Dictionary &map, const std::string &a, const std::string &b){
 	return Plt_Err(ValueError, "Expected a map or class instance");
 }
 
-PltObject renderInterpolate(const Unit &unit, Dictionary &map){
+PltObject renderInterpolate(Unit &unit, Dictionary &map){
 	PltObject obj;
 	if (unit.vals.size() == 2)
 		obj = getVal(map, unit.vals[0], unit.vals[1]);
@@ -95,7 +95,7 @@ PltObject renderInterpolate(const Unit &unit, Dictionary &map){
 	return nil;
 }
 
-PltObject renderIf(const Unit &unit, Dictionary &map){
+PltObject renderIf(Unit &unit, Dictionary &map){
 	PltObject obj;
 	if (unit.vals.size() == 2)
 		obj = getVal(map, unit.vals[0], unit.vals[1]);
@@ -110,20 +110,20 @@ PltObject renderIf(const Unit &unit, Dictionary &map){
 	return ret;
 }
 
-PltObject renderElse(const Unit &unit, Dictionary &map){
+PltObject renderElse(Unit &unit, Dictionary &map){
 	if (lastIfRes)
 		return nil;
 	lastIfRes = true;
 	return renderUnits(unit.subs, map);
 }
 
-PltObject renderElseIf(const Unit &unit, Dictionary &map){
+PltObject renderElseIf(Unit &unit, Dictionary &map){
 	if (lastIfRes)
 		return nil;
 	return renderIf(unit, map);
 }
 
-PltObject renderFor(const Unit &unit, Dictionary &map){
+PltObject renderFor(Unit &unit, Dictionary &map){
 	PltObject obj = getVal(map, unit.vals[1]);
 	if (obj.type != PLT_LIST)
 		return Plt_Err(ValueError, "can only iterate with for over lists");
@@ -138,7 +138,7 @@ PltObject renderFor(const Unit &unit, Dictionary &map){
 	return nil;
 }
 
-PltObject renderUnits(const std::vector<Unit> &units, Dictionary &map){
+PltObject renderUnits(std::vector<Unit> &units, Dictionary &map){
 	for (auto &unit : units){
 		PltObject ret;
 		//ret.type = PLT_BOOL; // dummy
