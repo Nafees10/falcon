@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 
-#include "PltObject.h"
+
 #include "pluto.h"
 #include "parser.h"
 #include "utils.h"
@@ -67,7 +67,7 @@ PltObject getVal(Dictionary &map, std::string &a, std::string &b){
 	if (obj.type == PLT_ERROBJ) return obj;
 
 	if (obj.type == PLT_OBJ){
-		auto &subMap = ((KlassInstance*)(obj.ptr))->members;
+		auto &subMap = ((KlassObject*)(obj.ptr))->members;
 		auto it = subMap.find(b);
 		if (it == subMap.end())
 			return Plt_Err(ValueError, "map does not contain " + a + "." + b);

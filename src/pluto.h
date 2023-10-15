@@ -1,11 +1,17 @@
 #ifndef PLUTO_H
 #define PLUTO_H
 
-#include "PltObject.h"
+#ifdef _WIN32
+  #include "C:\\plutonium\\PltObject.h"
+  #define EXPORt __declspec(dllexport)
+#else
+  #include "/opt/plutonium/PltObject.h"
+  #define EXPORT
+#endif
 
 extern "C"{
-	PltObject init();
-	PltObject render(PltObject* args, int n);
+	EXPORT PltObject init();
+	EXPORT PltObject render(PltObject* args, int n);
 }
 
 #endif
