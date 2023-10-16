@@ -3,7 +3,7 @@
 
 #ifdef _WIN32
   #include "C:\\plutonium\\PltObject.h"
-  #define EXPORt __declspec(dllexport)
+  #define EXPORT __declspec(dllexport)
 #else
   #include "/opt/plutonium/PltObject.h"
   #define EXPORT
