@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.16.3 FATAL_ERROR)
+project(pluto)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_SHARED_LIBRARY_PREFIX "")
+add_library(pluto SHARED src/pluto.cpp src/pluto.h)
