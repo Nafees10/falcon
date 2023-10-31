@@ -1,7 +1,7 @@
 # Pluto
 
 A simple template engine for the
-[plutonium language](https://github.com/shehryar49/plutonium-lang)
+[plutonium programming language](https://github.com/shehryar49/plutonium-lang)
 
 Module version of the standalone
 [`pluto` tool](https://github.com/Nafees10/pluto)
