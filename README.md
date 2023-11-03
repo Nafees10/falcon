@@ -5,15 +5,27 @@ A simple template engine for the
 
 Module version of the standalone
 [`pluto` tool](https://github.com/Nafees10/pluto)
-
-## Building & Installing Pluto
-
+## Installing Pluto
+You can install this module using plutonium's package manager fiza. Plutonium must be installed on your system.
+### Linux
+```bash
+fiza update
+fiza install pluto
+```
+### Windows
+```
+cd C:\plutonium
+plutonium fiza.plt update
+plutonium fiza.plt install pluto
+```
+## Building Pluto
+If you want to build manually(to contribute perhaps), you can use cmake to build this module.
 Plutonium Language must be installed prior to installing pluto.
 
 ```bash
 git clone https://github.com/Nafees10/plutoc.git
 cd plutoc
-./build.sh
+cmake .
 sudo mv pluto.so /opt/plutonium/modules
 ```
 
