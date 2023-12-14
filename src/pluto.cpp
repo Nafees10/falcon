@@ -6,26 +6,26 @@
 #include "parser.h"
 #include "utils.h"
 
-PltObject nil;
+ZObject nil;
 
-PltObject init(){
-	nil.type = PLT_NIL;
+ZObject init(){
+	nil.type = Z_NIL;
 	Module* module = vm_allocModule();
-	module->members.emplace("render", PObjFromFunction("render", &render));
+	module->members.emplace("render", ZObjFromFunction("render", &render));
 
-	return PObjFromModule(module);
+	return ZObjFromModule(module);
 };
 
-PltObject renderUnits(std::vector<Unit>&, Dictionary&);
+ZObject renderUnits(std::vector<Unit>&, Dictionary&);
 
-PltObject render(PltObject* args, int n){
+ZObject render(ZObject* args, int n){
 	// expect 2 args, filename, and dict
 	if (n != 2)
-		return Plt_Err(ArgumentError, "Expected 2 arguments (filename, dict)");
-	if (args[0].type != PLT_STR)
-		return Plt_Err(TypeError, "expected first argumnt as string filename");
-	if (args[1].type != PLT_DICT)
-		return Plt_Err(TypeError, "expected second argumnt as dictionary");
+		return Z_Err(ArgumentError, "Expected 2 arguments (filename, dict)");
+	if (args[0].type != Z_STR)
+		return Z_Err(TypeError, "expected first argumnt as string filename");
+	if (args[1].type != Z_DICT)
+		return Z_Err(TypeError, "expected second argumnt as dictionary");
 	string filename = *(string*)args[0].ptr;
 	Dictionary &map = *(Dictionary*)args[1].ptr;
 
@@ -33,13 +33,13 @@ PltObject render(PltObject* args, int n){
 	{
 		std::string stream;
 		if (!readFile(filename, stream))
-			return Plt_Err(FileIOError, "Failed to open file");
+			return Z_Err(FileIOError, "Failed to open file");
 		units = parse(stream);
 	}
 	// make sure no invalid in there
 	for (auto unit : units){
 		if (unit.type == Unit::Invalid)
-			return Plt_Err(ValueError, "Syntax error in pluto template");
+			return Z_Err(ValueError, "Syntax error in pluto template");
 	}
 	return renderUnits(units, map);
 }
@@ -47,64 +47,64 @@ PltObject render(PltObject* args, int n){
 /// result of last if block
 bool lastIfRes = true;
 
-PltObject renderStatic(Unit &unit){
+ZObject renderStatic(Unit &unit){
 	for (auto &val : unit.vals)
 		std::cout << val;
 	return nil;
 }
 
-PltObject getVal(Dictionary &map, std::string &a){
-	PltObject obj;
-	auto iterator = map.find(PObjFromStrPtr(&a));
+ZObject getVal(Dictionary &map, std::string &a){
+	ZObject obj;
+	auto iterator = map.find(ZObjFromStrPtr(&a));
 	if (iterator == map.end())
-		return Plt_Err(ValueError, "map does not contain " + a);
+		return Z_Err(ValueError, "map does not contain " + a);
 	obj = iterator->second;
 	return obj;
 }
 
-PltObject getVal(Dictionary &map, std::string &a, std::string &b){
-	PltObject obj = getVal(map, a);;
-	if (obj.type == PLT_ERROBJ) return obj;
+ZObject getVal(Dictionary &map, std::string &a, std::string &b){
+	ZObject obj = getVal(map, a);;
+	if (obj.type == Z_ERROBJ) return obj;
 
-	if (obj.type == PLT_OBJ){
+	if (obj.type == Z_OBJ){
 		auto &subMap = ((KlassObject*)(obj.ptr))->members;
 		auto it = subMap.find(b);
 		if (it == subMap.end())
-			return Plt_Err(ValueError, "map does not contain " + a + "." + b);
+			return Z_Err(ValueError, "map does not contain " + a + "." + b);
 		return it->second;
 	}
-	if (obj.type == PLT_DICT){
+	if (obj.type == Z_DICT){
 		Dictionary &subMap = *(Dictionary*)(obj.ptr);
-		auto iterator = subMap.find(PObjFromStrPtr(&b));
+		auto iterator = subMap.find(ZObjFromStrPtr(&b));
 		if (iterator == subMap.end())
-			return Plt_Err(ValueError, "map does not contain " + a + "." + b);
+			return Z_Err(ValueError, "map does not contain " + a + "." + b);
 		return iterator->second;
 	}
-	return Plt_Err(ValueError, "Expected a map or class instance");
+	return Z_Err(ValueError, "Expected a map or class instance");
 }
 
-PltObject renderInterpolate(Unit &unit, Dictionary &map){
-	PltObject obj;
+ZObject renderInterpolate(Unit &unit, Dictionary &map){
+	ZObject obj;
 	if (unit.vals.size() == 2)
 		obj = getVal(map, unit.vals[0], unit.vals[1]);
 	else
 		obj = getVal(map, unit.vals[0]);
-	if (obj.type == PLT_ERROBJ)
+	if (obj.type == Z_ERROBJ)
 		return obj;
 
-	if (obj.type != PLT_STR)
-		return Plt_Err(ValueError, "cannot interpolate non string data");
+	if (obj.type != Z_STR)
+		return Z_Err(ValueError, "cannot interpolate non string data");
 	std::cout << *(std::string*)(obj.ptr);
 	return nil;
 }
 
-PltObject renderIf(Unit &unit, Dictionary &map){
-	PltObject obj;
+ZObject renderIf(Unit &unit, Dictionary &map){
+	ZObject obj;
 	if (unit.vals.size() == 2)
 		obj = getVal(map, unit.vals[0], unit.vals[1]);
 	else
 		obj = getVal(map, unit.vals[0]);
-	if (obj.type == PLT_ERROBJ || (obj.type == PLT_BOOL && obj.i == 0)){
+	if (obj.type == Z_ERROBJ || (obj.type == Z_BOOL && obj.i == 0)){
 		lastIfRes = false;
 		return nil; // skip rendering
 	}
@@ -113,38 +113,38 @@ PltObject renderIf(Unit &unit, Dictionary &map){
 	return ret;
 }
 
-PltObject renderElse(Unit &unit, Dictionary &map){
+ZObject renderElse(Unit &unit, Dictionary &map){
 	if (lastIfRes)
 		return nil;
 	lastIfRes = true;
 	return renderUnits(unit.subs, map);
 }
 
-PltObject renderElseIf(Unit &unit, Dictionary &map){
+ZObject renderElseIf(Unit &unit, Dictionary &map){
 	if (lastIfRes)
 		return nil;
 	return renderIf(unit, map);
 }
 
-PltObject renderFor(Unit &unit, Dictionary &map){
-	PltObject obj = getVal(map, unit.vals[1]);
-	if (obj.type != PLT_LIST)
-		return Plt_Err(ValueError, "can only iterate with for over lists");
-	std::vector<PltObject> list = *(PltList*)(obj.ptr);
+ZObject renderFor(Unit &unit, Dictionary &map){
+	ZObject obj = getVal(map, unit.vals[1]);
+	if (obj.type != Z_LIST)
+		return Z_Err(ValueError, "can only iterate with for over lists");
+	std::vector<ZObject> list = *(ZList*)(obj.ptr);
 	for (auto &elem : list){
 		Dictionary sub(map);
-		sub.emplace(PObjFromStr(unit.vals[0]), elem);
+		sub.emplace(ZObjFromStr(unit.vals[0]), elem);
 		auto ret =renderUnits(unit.subs, sub);
-		if (ret.type == PLT_ERROBJ)
+		if (ret.type == Z_ERROBJ)
 			return ret;
 	}
 	return nil;
 }
 
-PltObject renderUnits(std::vector<Unit> &units, Dictionary &map){
+ZObject renderUnits(std::vector<Unit> &units, Dictionary &map){
 	for (auto &unit : units){
-		PltObject ret;
-		//ret.type = PLT_BOOL; // dummy
+		ZObject ret;
+		//ret.type = Z_BOOL; // dummy
 		switch (unit.type){
 			case Unit::Invalid: break;
 			case Unit::Static: ret = renderStatic(unit); break;
@@ -154,7 +154,7 @@ PltObject renderUnits(std::vector<Unit> &units, Dictionary &map){
 			case Unit::ElseIf: ret = renderElseIf(unit, map); break;
 			case Unit::For: ret = renderFor(unit, map); break;
 		}
-		if (ret.type == PLT_ERROBJ)
+		if (ret.type == Z_ERROBJ)
 			return ret;
 	}
 	return nil;

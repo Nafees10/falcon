@@ -2,16 +2,16 @@
 #define PLUTO_H
 
 #ifdef _WIN32
-  #include "C:\\plutonium\\PltObject.h"
+  #include "C:\\zuko\\ZObject.h"
   #define EXPORT __declspec(dllexport)
 #else
-  #include "/opt/plutonium/PltObject.h"
+  #include "/opt/zuko/ZObject.h"
   #define EXPORT
 #endif
 
 extern "C"{
-	EXPORT PltObject init();
-	EXPORT PltObject render(PltObject* args, int n);
+	EXPORT ZObject init();
+	EXPORT ZObject render(ZObject* args, int32_t n);
 }
 
 #endif
