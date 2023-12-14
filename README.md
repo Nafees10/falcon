@@ -1,12 +1,12 @@
 # Pluto
 
 A simple template engine for the
-[plutonium programming language](https://github.com/shehryar49/plutonium-lang)
+[zuko programming language](https://github.com/shehryar49/zuko)
 
 Module version of the standalone
 [`pluto` tool](https://github.com/Nafees10/pluto)
 ## Installing Pluto
-You can install this module using plutonium's package manager fiza. Plutonium must be installed on your system.
+You can install this module using zuko's package manager fiza. Zuko must be installed on your system.
 ### Linux
 ```bash
 fiza update
@@ -14,19 +14,19 @@ fiza install pluto
 ```
 ### Windows
 ```
-cd C:\plutonium
-plutonium fiza.plt update
-plutonium fiza.plt install pluto
+cd C:\zuko
+zuko fiza.zu update
+zuko fiza.zu install pluto
 ```
 ## Building Pluto
 If you want to build manually(to contribute perhaps), you can use cmake to build this module.
-Plutonium Language must be installed prior to installing pluto.
+Zuko Language must be installed prior to installing pluto.
 
 ```bash
 git clone https://github.com/Nafees10/plutoc.git
 cd plutoc
 cmake .
-sudo mv pluto.so /opt/plutonium/modules
+sudo mv pluto.so /opt/zuko/modules
 ```
 
 ## Syntax
