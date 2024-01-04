@@ -1,3 +1,6 @@
 *.o
 *.so
 src/PltObject.h
+/CMakeFiles
+Makefile
+*.cmake

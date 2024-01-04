@@ -2,10 +2,10 @@
 #define PLUTO_H
 
 #ifdef _WIN32
-  #include "C:\\zuko\\ZObject.h"
+  #include "C:\\zuko\\include\\zapi.h"
   #define EXPORT __declspec(dllexport)
 #else
-  #include "/opt/zuko/ZObject.h"
+  #include "/opt/zuko/include/zapi.h"
   #define EXPORT
 #endif
 
