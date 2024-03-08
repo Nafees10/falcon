@@ -1,37 +1,35 @@
-# Pluto
+# Falcon
 
 A simple template engine for the
 [zuko programming language](https://github.com/shehryar49/zuko)
 
-Module version of the standalone
-[`pluto` tool](https://github.com/Nafees10/pluto)
-## Installing Pluto
+## Installing Falcon
 You can install this module using zuko's package manager fiza. Zuko must be installed on your system.
 ### Linux
 ```bash
 fiza update
-fiza install pluto
+fiza install falcon
 ```
 ### Windows
 ```
 cd C:\zuko
 zuko fiza.zu update
-zuko fiza.zu install pluto
+zuko fiza.zu install falcon
 ```
-## Building Pluto
+## Building Falcon
 If you want to build manually(to contribute perhaps), you can use cmake to build this module.
-Zuko Language must be installed prior to installing pluto.
+Zuko Language must be installed prior to installing falcon.
 
 ```bash
-git clone https://github.com/Nafees10/plutoc.git
-cd plutoc
+git clone https://github.com/Nafees10/falcon.git
+cd falcon
 cmake .
-sudo mv pluto.so /opt/zuko/modules
+sudo mv falcon.so /opt/zuko/modules
 ```
 
 ## Syntax
 
-Pluto adds several tags to html:
+Falcon adds several tags to html:
 
 ### `<for a b>`
 
@@ -97,12 +95,12 @@ class instance, it will look for a public member named `y`.
 
 ---
 
-## Using pluto
+## Using falcon
 
-```plutonium
-import pluto
+```zuko
+import falcon
 var posts = getPostsFromDB()
-pluto.render("filename.pluto", {"key" : "value", "posts" : posts})
+falcon.render("filename.falcon", {"key" : "value", "posts" : posts})
 ```
 
 ---

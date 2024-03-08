@@ -2,7 +2,7 @@
 #include <fstream>
 #include <string>
 
-#include "pluto.h"
+#include "falcon.h"
 #include "parser.h"
 #include "utils.h"
 
@@ -41,7 +41,7 @@ ZObject render(ZObject* args, int n){
 	// make sure no invalid in there
 	for (auto unit : units){
 		if (unit.type == Unit::Invalid)
-			return Z_Err(ValueError, "Syntax error in pluto template");
+			return Z_Err(ValueError, "Syntax error in falcon template");
 	}
 	return renderUnits(units, map);
 }
