@@ -13,8 +13,8 @@ fiza install falcon
 ### Windows
 ```
 cd C:\zuko
-zuko fiza.zu update
-zuko fiza.zu install falcon
+zuko fiza.zk update
+zuko fiza.zk install falcon
 ```
 ## Building Falcon
 If you want to build manually(to contribute perhaps), you can use cmake to build this module.
